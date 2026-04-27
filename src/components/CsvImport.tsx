@@ -51,7 +51,7 @@ export default function CsvImport({ onImport }: Props) {
         student-friendly buckets (Mess, Hostel, Ride-share, Subscriptions, …).
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50">
           {pending ? "Reading…" : "Choose CSV file"}
           <input
             type="file"

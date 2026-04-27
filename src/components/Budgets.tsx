@@ -11,7 +11,7 @@ import {
   type Budget,
   type BudgetStatus,
 } from "@/lib/budgets";
-import { listCategories } from "@/lib/categorize";
+import { iconFor, listCategories } from "@/lib/categorize";
 import type { Transaction } from "@/lib/transactions";
 
 const fmt = new Intl.NumberFormat("en-IN", {
@@ -136,7 +136,8 @@ export default function Budgets({ transactions }: Props) {
             <div key={b.category} className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    <span aria-hidden>{iconFor(b.category)}</span>
                     {b.category}
                   </span>
                   <span
@@ -196,7 +197,7 @@ export default function Budgets({ transactions }: Props) {
           <button
             onClick={addBudget}
             disabled={!newCategory}
-            className="rounded-md bg-zinc-900 px-3 py-1 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="rounded-md bg-emerald-600 px-3 py-1 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             Add
           </button>
