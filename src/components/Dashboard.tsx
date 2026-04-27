@@ -40,16 +40,28 @@ export default function Dashboard() {
     <div className="space-y-6">
       <CsvImport onImport={onImport} />
 
-      <WeeklyBrief transactions={transactions} />
-
-      <Budgets transactions={transactions} />
-
       {!hydrated ? null : transactions.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-10 text-center text-zinc-500 dark:border-zinc-700">
-          No transactions yet. Upload a CSV above to start.
+        <div className="rounded-xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">
+          <p className="text-3xl" aria-hidden>
+            🪙
+          </p>
+          <p className="mt-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            No spend logged yet.
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">
+            Upload a CSV above — or{" "}
+            <a className="underline underline-offset-2" href="/sample.csv" download>
+              try the sample
+            </a>{" "}
+            — to unlock budgets and the weekly brief.
+          </p>
         </div>
       ) : (
         <>
+          <WeeklyBrief transactions={transactions} />
+
+          <Budgets transactions={transactions} />
+
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {transactions.length} transactions imported
