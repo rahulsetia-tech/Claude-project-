@@ -10,21 +10,21 @@ A college student in India (18–24) on a parental allowance or part-time income
 
 > **Drop in a CSV bank/UPI statement and, in under 60 seconds, see their money categorised, their budgets vs. reality, and a one-paragraph "what to do this week" written for them — without ever connecting a bank.**
 
-## 3. Features (checklist)
+## 3. Features (checklist) — Day 1 ship state
 
-- [x] **CSV import + auto-categorise** — *MVP* — Upload a CSV from any bank or UPI app; Pocket parses every transaction and tags it into student categories (mess, hostel, ride-share, books, subscriptions, eating out, etc.).
-- [x] **Category budgets + over-spend alerts** — *MVP* — Set a monthly cap per category; the app flashes a clear warning the moment spending crosses 80% / 100%, and shows how many days are left in the cycle.
-- [x] **Weekly AI advice brief** — *MVP* — Every Sunday, a Claude-generated one-pager: top 3 leaks this week, one habit win, one specific action for next week — written for a student, not a CFO.
-- [ ] **Spending trend charts** — 30 / 60 / 90-day charts per category and overall, so creeping costs show up before the alert fires.
-- [ ] **Manual transaction add + edit** — Add cash spends, fix a wrong category, or split a transaction (e.g., a Swiggy order shared with roommates).
-- [ ] **PDF-statement → CSV (OCR fallback)** — When the bank only gives a PDF, Pocket OCRs it into a clean CSV so the import flow still works.
-- [ ] **Multi-month dashboard + export** — Stitch monthly imports into a single timeline; export as CSV/PDF for personal records or to share with a parent.
-- [ ] **Privacy-first local mode** — All raw transactions stay on the device by default; only anonymised aggregates leave the phone for the AI brief. Builds the trust that "one breach ends the brand" demands.
+- [x] **CSV import + auto-categorise** — *MVP* — **SHIPPED in PR #1.** Quote-aware parser, header-keyword column detection (Date / Description / Amount or Withdrawal), 10 keyword-rule categories + Other fallback.
+- [x] **Category budgets + over-spend alerts** — *MVP* — **SHIPPED in PR #2.** Editable monthly caps, progress bars, three alert states (under / 80%+ / over), days-left-in-cycle counter.
+- [x] **Weekly AI advice brief** — *MVP* — **SHIPPED in PRs #3 + #4.** Top 3 leaks / Habit win / Next week's move. Real Claude Sonnet 4.6 via `/api/brief` route handler when `ANTHROPIC_API_KEY` is set, deterministic local synthesis otherwise.
+- [ ] **Spending trend charts** — Deferred. Closest to the cut (RICE 11,400) but the AI brief was the differentiator the workshop demanded.
+- [ ] **Manual transaction add + edit** — Deferred. CSV-import-first works for the demo; manual entry needed once users live with it.
+- [ ] **PDF-statement → CSV (OCR fallback)** — Deferred. Cheaper path: just instruct users to download CSV from their bank app.
+- [ ] **Multi-month dashboard + export** — Deferred. The cycle math is in (`lib/budgets.ts`), only UI surface missing.
+- [ ] **Privacy-first local mode** — Partial. Raw transactions never leave the device; the brief endpoint posts a summary (spend-by-category + last 40 transactions) only when a user has opted in by setting an API key. Full opt-out toggle still TODO.
 
 ## 4. MVP — what ships day 1
 
-1. CSV import + auto-categorise
-2. Category budgets + over-spend alerts
-3. Weekly AI advice brief
+1. CSV import + auto-categorise — ✅ shipped
+2. Category budgets + over-spend alerts — ✅ shipped
+3. Weekly AI advice brief — ✅ shipped (Claude Sonnet 4.6 with cached system prompt + local fallback)
 
-Everything else waits until we hit ≥40% weekly-active users opening the AI brief within 48 hours of delivery.
+Everything else waits until we hit ≥40% weekly-active users opening the AI brief within 48 hours of delivery (PMF signal from §6 of the business plan).
