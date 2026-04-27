@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Budgets from "./Budgets";
+import CategoryPie from "./CategoryPie";
 import CsvImport from "./CsvImport";
 import TotalSpentHero from "./TotalSpentHero";
 import TransactionModal from "./TransactionModal";
@@ -14,6 +15,7 @@ import {
   saveTransactions,
   type Transaction,
 } from "@/lib/transactions";
+import { useToast } from "./ToastProvider";
 
 type ModalState =
   | { kind: "closed" }
@@ -25,6 +27,7 @@ export default function Dashboard() {
   const [hydrated, setHydrated] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [modal, setModal] = useState<ModalState>({ kind: "closed" });
+  const toast = useToast();
 
   useEffect(() => {
     setTransactions(loadTransactions());
@@ -45,6 +48,7 @@ export default function Dashboard() {
     }
     setTransactions([]);
     saveTransactions([]);
+    toast.show("All transactions cleared", "info");
   }
 
   async function loadSample() {
@@ -62,8 +66,10 @@ export default function Dashboard() {
         category: categorize(r.description),
       }));
       onImport(tx);
+      toast.show(`Loaded ${tx.length} sample transactions`);
     } catch (err) {
       console.error("loadSample failed", err);
+      toast.show("Could not load sample data", "error");
     } finally {
       setLoadingSample(false);
     }
@@ -78,6 +84,7 @@ export default function Dashboard() {
       saveTransactions(next);
       return next;
     });
+    toast.show(modal.kind === "edit" ? "Transaction updated" : "Transaction added");
     setModal({ kind: "closed" });
   }
 
@@ -87,6 +94,7 @@ export default function Dashboard() {
       saveTransactions(next);
       return next;
     });
+    toast.show("Transaction deleted", "info");
     setModal({ kind: "closed" });
   }
 
@@ -128,7 +136,10 @@ export default function Dashboard() {
 
           <WeeklyBrief transactions={transactions} />
 
-          <Budgets transactions={transactions} />
+          <div className="grid items-start gap-6 lg:grid-cols-2">
+            <CategoryPie transactions={transactions} />
+            <Budgets transactions={transactions} />
+          </div>
 
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">

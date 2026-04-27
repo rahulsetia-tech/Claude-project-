@@ -4,6 +4,7 @@ import { useState, type ChangeEvent } from "react";
 import { parseCsv } from "@/lib/csv";
 import { categorize } from "@/lib/categorize";
 import type { Transaction } from "@/lib/transactions";
+import { useToast } from "./ToastProvider";
 
 interface Props {
   onImport: (tx: Transaction[]) => void;
@@ -13,6 +14,7 @@ export default function CsvImport({ onImport }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [lastSummary, setLastSummary] = useState<string | null>(null);
+  const toast = useToast();
 
   async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -35,8 +37,13 @@ export default function CsvImport({ onImport }: Props) {
       }));
       onImport(tx);
       setLastSummary(`${file.name} · ${tx.length} transactions imported`);
+      toast.show(`Imported ${tx.length} transactions from ${file.name}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not parse CSV.");
+      toast.show(
+        err instanceof Error ? err.message : "Could not parse CSV.",
+        "error",
+      );
     } finally {
       setPending(false);
       e.target.value = "";
