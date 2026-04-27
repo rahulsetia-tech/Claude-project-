@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Budgets from "./Budgets";
 import CsvImport from "./CsvImport";
 import TransactionTable from "./TransactionTable";
+import WeeklyBrief from "./WeeklyBrief";
 import {
   loadTransactions,
   saveTransactions,
@@ -38,6 +39,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <CsvImport onImport={onImport} />
+
+      <WeeklyBrief transactions={transactions} />
 
       <Budgets transactions={transactions} />
 
