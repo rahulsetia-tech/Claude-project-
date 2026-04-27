@@ -23,6 +23,7 @@ function pillClass(category: string): string {
 
 interface Props {
   transactions: Transaction[];
+  onRowClick?: (tx: Transaction) => void;
 }
 
 const fmtCurrency = new Intl.NumberFormat("en-IN", {
@@ -40,11 +41,12 @@ function dateSortKey(s: string): string {
   return s;
 }
 
-export default function TransactionTable({ transactions }: Props) {
+export default function TransactionTable({ transactions, onRowClick }: Props) {
   const sorted = [...transactions].sort((a, b) =>
     dateSortKey(a.date) < dateSortKey(b.date) ? 1 : -1,
   );
   const total = transactions.reduce((s, t) => s + t.amount, 0);
+  const clickable = Boolean(onRowClick);
 
   return (
     <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -59,7 +61,15 @@ export default function TransactionTable({ transactions }: Props) {
         </thead>
         <tbody>
           {sorted.map((t) => (
-            <tr key={t.id} className="border-t border-zinc-100 dark:border-zinc-800">
+            <tr
+              key={t.id}
+              onClick={clickable ? () => onRowClick?.(t) : undefined}
+              className={`border-t border-zinc-100 dark:border-zinc-800 ${
+                clickable
+                  ? "cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                  : ""
+              }`}
+            >
               <td className="px-4 py-3 whitespace-nowrap text-zinc-600 dark:text-zinc-400">
                 {t.date}
               </td>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Budgets from "./Budgets";
 import CsvImport from "./CsvImport";
 import TotalSpentHero from "./TotalSpentHero";
+import TransactionModal from "./TransactionModal";
 import TransactionTable from "./TransactionTable";
 import WeeklyBrief from "./WeeklyBrief";
 import { categorize } from "@/lib/categorize";
@@ -14,10 +15,16 @@ import {
   type Transaction,
 } from "@/lib/transactions";
 
+type ModalState =
+  | { kind: "closed" }
+  | { kind: "new" }
+  | { kind: "edit"; tx: Transaction };
+
 export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
+  const [modal, setModal] = useState<ModalState>({ kind: "closed" });
 
   useEffect(() => {
     setTransactions(loadTransactions());
@@ -62,6 +69,27 @@ export default function Dashboard() {
     }
   }
 
+  function handleSave(tx: Transaction) {
+    setTransactions((prev) => {
+      const exists = prev.some((p) => p.id === tx.id);
+      const next = exists
+        ? prev.map((p) => (p.id === tx.id ? tx : p))
+        : [...prev, tx];
+      saveTransactions(next);
+      return next;
+    });
+    setModal({ kind: "closed" });
+  }
+
+  function handleDelete(id: string) {
+    setTransactions((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      saveTransactions(next);
+      return next;
+    });
+    setModal({ kind: "closed" });
+  }
+
   return (
     <div className="space-y-6">
       <CsvImport onImport={onImport} />
@@ -75,16 +103,24 @@ export default function Dashboard() {
             No spend logged yet.
           </p>
           <p className="mt-1 text-sm text-zinc-500">
-            Upload your own CSV above, or try the bundled sample to see the
-            budgets and weekly brief in action.
+            Upload your own CSV above, try the bundled sample, or add a
+            transaction manually.
           </p>
-          <button
-            onClick={loadSample}
-            disabled={loadingSample}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
-          >
-            {loadingSample ? "Loading…" : "Try with sample data →"}
-          </button>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={loadSample}
+              disabled={loadingSample}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+            >
+              {loadingSample ? "Loading…" : "Try with sample data →"}
+            </button>
+            <button
+              onClick={() => setModal({ kind: "new" })}
+              className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-zinc-800"
+            >
+              + Add manually
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -98,15 +134,38 @@ export default function Dashboard() {
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {transactions.length} transactions imported
             </h2>
-            <button
-              onClick={onClear}
-              className="text-xs text-zinc-500 underline-offset-2 hover:text-red-600 hover:underline"
-            >
-              clear all
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setModal({ kind: "new" })}
+                className="rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-zinc-800"
+              >
+                + Add transaction
+              </button>
+              <button
+                onClick={onClear}
+                className="text-xs text-zinc-500 underline-offset-2 hover:text-red-600 hover:underline"
+              >
+                clear all
+              </button>
+            </div>
           </div>
-          <TransactionTable transactions={transactions} />
+          <TransactionTable
+            transactions={transactions}
+            onRowClick={(tx) => setModal({ kind: "edit", tx })}
+          />
+          <p className="text-xs text-zinc-400">
+            Tip: click any row to edit or delete it.
+          </p>
         </>
+      )}
+
+      {modal.kind !== "closed" && (
+        <TransactionModal
+          transaction={modal.kind === "edit" ? modal.tx : undefined}
+          onSave={handleSave}
+          onDelete={modal.kind === "edit" ? handleDelete : undefined}
+          onClose={() => setModal({ kind: "closed" })}
+        />
       )}
     </div>
   );
