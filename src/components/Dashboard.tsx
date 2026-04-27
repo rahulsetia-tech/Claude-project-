@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Budgets from "./Budgets";
 import CsvImport from "./CsvImport";
 import TransactionTable from "./TransactionTable";
 import {
@@ -37,6 +38,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <CsvImport onImport={onImport} />
+
+      <Budgets transactions={transactions} />
 
       {!hydrated ? null : transactions.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 p-10 text-center text-zinc-500 dark:border-zinc-700">
