@@ -1,5 +1,6 @@
 "use client";
 
+import { iconFor } from "@/lib/categorize";
 import type { Transaction } from "@/lib/transactions";
 
 const CATEGORY_COLOURS: Record<string, string> = {
@@ -65,8 +66,9 @@ export default function TransactionTable({ transactions }: Props) {
               <td className="px-4 py-3 text-zinc-900 dark:text-zinc-100">{t.description}</td>
               <td className="px-4 py-3">
                 <span
-                  className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${pillClass(t.category)}`}
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${pillClass(t.category)}`}
                 >
+                  <span aria-hidden>{iconFor(t.category)}</span>
                   {t.category}
                 </span>
               </td>

@@ -85,3 +85,21 @@ export function categorize(description: string): string {
 export function listCategories(): string[] {
   return [...RULES.map((r) => r.category), "Other"];
 }
+
+const CATEGORY_ICONS: Record<string, string> = {
+  "Eating Out": "🍽",
+  "Ride-share": "🚖",
+  Books: "📚",
+  Subscriptions: "🎬",
+  Mess: "🍱",
+  Hostel: "🏠",
+  "Phone/Internet": "📱",
+  Bills: "🧾",
+  Shopping: "🛍",
+  Cash: "💵",
+  Other: "✨",
+};
+
+export function iconFor(category: string): string {
+  return CATEGORY_ICONS[category] ?? CATEGORY_ICONS.Other;
+}
