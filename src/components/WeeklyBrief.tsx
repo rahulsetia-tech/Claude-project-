@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { load, save } from "@/lib/storage";
-import { synthesiseBrief, type Brief } from "@/lib/brief";
+import type { Brief } from "@/lib/brief";
 import { loadBudgets } from "@/lib/budgets";
 import type { Transaction } from "@/lib/transactions";
 
@@ -22,6 +22,7 @@ export default function WeeklyBrief({ transactions }: Props) {
   const [brief, setBrief] = useState<Brief | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setBrief(load<Brief | null>(KEY, null));
@@ -30,13 +31,20 @@ export default function WeeklyBrief({ transactions }: Props) {
 
   async function generate() {
     setGenerating(true);
+    setError(null);
     try {
-      // brief, but with a tiny delay so the loading state is visible.
-      await new Promise((r) => setTimeout(r, 250));
       const budgets = loadBudgets();
-      const b = synthesiseBrief(transactions, budgets);
+      const res = await fetch("/api/brief", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ transactions, budgets }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const b = (await res.json()) as Brief;
       setBrief(b);
       save(KEY, b);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not generate brief.");
     } finally {
       setGenerating(false);
     }
@@ -66,7 +74,7 @@ export default function WeeklyBrief({ transactions }: Props) {
           className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
         >
           {generating
-            ? "Reading your spend…"
+            ? "Asking Claude…"
             : brief
               ? "Regenerate"
               : "Generate this week's brief"}
@@ -76,6 +84,12 @@ export default function WeeklyBrief({ transactions }: Props) {
       {!brief && noData && (
         <p className="mt-4 text-sm text-zinc-500">
           Import a CSV first — the brief reads from your transactions.
+        </p>
+      )}
+
+      {error && (
+        <p className="mt-4 text-sm text-red-600 dark:text-red-400">
+          Could not generate brief: {error}
         </p>
       )}
 
