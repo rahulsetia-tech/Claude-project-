@@ -11,6 +11,7 @@ import {
   type BudgetStatus,
 } from "@/lib/budgets";
 import type { Transaction } from "@/lib/transactions";
+import Sparkline from "./Sparkline";
 
 const fmt = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -78,6 +79,10 @@ export default function TotalSpentHero({ transactions }: Props) {
               ? `${fmt.format(delta)} under`
               : `${fmt.format(-delta)} over`}
           </p>
+          <div className="mt-2 flex items-center justify-end gap-2 text-xs text-zinc-500">
+            <span>30-day trend</span>
+            <Sparkline transactions={transactions} />
+          </div>
         </div>
       </div>
 
