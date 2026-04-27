@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Budgets from "./Budgets";
 import CategoryPie from "./CategoryPie";
 import CsvImport from "./CsvImport";
+import ImageImport from "./ImageImport";
 import TotalSpentHero from "./TotalSpentHero";
 import TransactionModal from "./TransactionModal";
 import TransactionTable from "./TransactionTable";
@@ -100,7 +101,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <CsvImport onImport={onImport} />
+      <div className="grid gap-6 md:grid-cols-2">
+        <CsvImport onImport={onImport} />
+        <ImageImport onImport={onImport} />
+      </div>
 
       {!hydrated ? null : transactions.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">
