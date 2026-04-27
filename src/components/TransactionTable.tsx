@@ -30,8 +30,19 @@ const fmtCurrency = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
+function dateSortKey(s: string): string {
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (dmy)
+    return `${dmy[3]}-${dmy[2].padStart(2, "0")}-${dmy[1].padStart(2, "0")}`;
+  return s;
+}
+
 export default function TransactionTable({ transactions }: Props) {
-  const sorted = [...transactions].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const sorted = [...transactions].sort((a, b) =>
+    dateSortKey(a.date) < dateSortKey(b.date) ? 1 : -1,
+  );
   const total = transactions.reduce((s, t) => s + t.amount, 0);
 
   return (
@@ -68,7 +79,7 @@ export default function TransactionTable({ transactions }: Props) {
         <tfoot className="bg-zinc-50 text-sm font-semibold dark:bg-zinc-950">
           <tr>
             <td colSpan={3} className="px-4 py-3 text-right text-zinc-500">
-              Total spend
+              Total imported (all months)
             </td>
             <td className="px-4 py-3 text-right tabular-nums text-zinc-900 dark:text-zinc-100">
               {fmtCurrency.format(total)}
